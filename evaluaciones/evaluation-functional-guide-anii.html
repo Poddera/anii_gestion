@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es" style="font-size:10px">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<title>Poddera P3 — Módulo de Evaluación · Guía Funcional</title>
+<style>
+:root{
+  --fg:#1E1E1E; --muted:#667082; --soft:#C3C9D4; --soft-2:#A9B1BF;
+  --bg:#FAFBFE; --chip-bg:#F2F5FB; --line:#EEF1F7; --line-soft:#F5F7FB; --line-edge:#E2E7F0;
+  --accent:#3D6AFB; --accent-ink:#2E51BF; --sky:#84BBFF;
+  --green:#59C8B0; --green-ink:#0C7A62;
+  --orange:#E5A674; --orange-ink:#B34E17;
+  --red:#E88790; --red-ink:#C8323F;
+  --amber-fg:#B34E17;
+  --warn-bg:#FFF4EB; --warn-border:#F8B47B; --warn-text:#8F3E10;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:10px}
+body{
+  font-family:'Lato',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  background:var(--bg);color:var(--fg);font-size:1.4rem;line-height:1.6;font-weight:400;
+}
+/* ===== language toggle ===== */
+body.lang-es .en{display:none !important}
+body.lang-en .es{display:none !important}
+.page{max-width:880px;margin:0 auto;padding:36px 28px 80px}
+
+/* ===== header ===== */
+.client-logo{height:40px;width:auto;display:block;margin-bottom:16px}
+.brand-logo{height:18px;width:auto;display:block;flex-shrink:0}
+.ftr-brand{display:flex;align-items:center;gap:14px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+
+.hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding-bottom:22px;border-bottom:1px solid var(--line-edge)}
+.hdr .eyebrow{font-size:1.2rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px}
+.hdr h1{font-size:2.6rem;font-weight:400;line-height:1.25;color:var(--fg)}
+.hdr .sub{font-size:1.4rem;color:var(--muted);margin-top:8px;max-width:560px}
+.lang-sw{display:flex;border:1px solid var(--line-edge);border-radius:3px;overflow:hidden;flex-shrink:0;margin-top:4px}
+.lang-sw button{font:inherit;font-size:1.2rem;font-weight:700;letter-spacing:.04em;padding:6px 14px;border:none;background:transparent;color:var(--muted);cursor:pointer}
+.lang-sw button.on{background:var(--fg);color:#fff}
+.lang-sw button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+/* ===== TOC strip ===== */
+.toc{display:flex;flex-wrap:wrap;gap:6px 20px;padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:36px}
+.toc a{font-size:1.2rem;letter-spacing:.05em;text-transform:uppercase;font-weight:700;color:var(--muted);text-decoration:none}
+.toc a:hover{color:var(--accent-ink)}
+
+/* ===== sections ===== */
+section{margin-bottom:48px}
+.sec-h{display:flex;align-items:baseline;gap:10px;font-size:1.2rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:18px}
+.sec-h .n{color:var(--soft);font-weight:700;font-variant-numeric:tabular-nums}
+h3{font-size:1.6rem;font-weight:700;margin:26px 0 10px}
+h3 code{font-size:1.3rem}
+p{margin-bottom:12px;max-width:74ch}
+ul,ol{margin:0 0 14px 22px;max-width:74ch}
+li{margin-bottom:6px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1.25rem;background:var(--chip-bg);padding:1px 5px;border-radius:3px;color:var(--fg)}
+strong{font-weight:700}
+em{color:var(--soft-2)}
+
+/* ===== tables ===== */
+table{width:100%;border-collapse:collapse;margin:14px 0 20px;font-size:1.3rem}
+th{font-size:1.1rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:left;padding:8px 12px;border-bottom:1px solid var(--line-edge)}
+td{padding:9px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td code{white-space:nowrap}
+
+/* ===== hierarchy diagram ===== */
+.hier{margin:18px 0 22px;font-size:1.4rem}
+.hier .lvl{display:flex;align-items:center;gap:10px;padding:7px 0}
+.hier .lvl .name{font-weight:700}
+.hier .lvl .tag{font-size:1.1rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.hier .l1{padding-left:0}.hier .l2{padding-left:28px}.hier .l3{padding-left:56px}
+.hier .elbow{color:var(--soft);font-family:ui-monospace,Menlo,monospace}
+
+/* ===== flow map (config | operation) ===== */
+.flow2{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line-edge);border-radius:3px;overflow:hidden;margin:18px 0 8px;position:relative}
+.flow2 .col{padding:18px 20px}
+.flow2 .col+.col{border-left:1px solid var(--line-edge)}
+.flow2 .col-h{font-size:1.1rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:14px}
+.flow2 .col-h.cfg{color:var(--accent-ink)}
+.flow2 .col-h.ops{color:var(--orange-ink)}
+.fstep{display:flex;gap:12px;padding:8px 0;position:relative}
+.fstep .num{flex-shrink:0;width:22px;height:22px;border-radius:50%;border:1px solid var(--line-edge);font-size:1.1rem;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;background:#fff;font-variant-numeric:tabular-nums}
+.fstep .txt{font-size:1.3rem;line-height:1.5;padding-top:1px}
+.fstep+.fstep::before{content:"";position:absolute;left:11px;top:-9px;height:16px;width:1px;background:var(--line-edge)}
+.flow-cap{font-size:1.2rem;color:var(--muted);margin-bottom:22px}
+
+
+/* ===== diagrams ===== */
+.dgram{overflow-x:auto;margin:16px 0 4px}
+.dgram svg{display:block;min-width:680px;width:100%;height:auto}
+.dgram-cap{font-size:1.2rem;color:var(--muted);margin-bottom:18px;max-width:74ch}
+.flow-bridge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:#fff;border:1px solid var(--line-edge);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.4rem;z-index:1}
+@media (max-width:680px){.flow-bridge{display:none}}
+
+/* ===== status dots ===== */
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.dot.g{background:var(--green);box-shadow:0 0 0 3px rgba(89,200,176,.22)}
+.dot.o{background:var(--orange);box-shadow:0 0 0 3px rgba(229,166,116,.24)}
+.dot.r{background:var(--red);box-shadow:0 0 0 3px rgba(232,135,144,.22)}
+.dot.s{background:var(--soft);box-shadow:0 0 0 3px rgba(195,201,212,.25)}
+
+/* ===== inline warning ===== */
+.warn-i{color:var(--orange-ink)}
+.warn-i::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--orange);margin-right:6px;vertical-align:1px}
+
+/* ===== warning callout (rare, true blockers only) ===== */
+.warn-block{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:4px;padding:12px 16px;color:var(--warn-text);font-size:1.3rem;margin:14px 0;max-width:74ch}
+
+/* ===== scoring pipeline ===== */
+.pipe{margin:20px 0;max-width:640px}
+.pipe .stage{padding:12px 16px;border:1px solid var(--line-edge);border-radius:3px;background:#fff}
+.pipe .stage .st-h{font-size:1.1rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:3px}
+.pipe .stage .st-v{font-size:1.4rem}
+.pipe .stage .st-v code{background:transparent;padding:0;color:var(--muted)}
+.pipe .arr{display:flex;align-items:center;gap:10px;padding:6px 0 6px 24px;color:var(--soft)}
+.pipe .arr .op{font-size:1.2rem;color:var(--muted);font-style:italic}
+.pipe .aside{margin-top:18px;padding:12px 16px;border-left:2px solid var(--line-edge)}
+.pipe .aside .st-h{font-size:1.1rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:3px}
+
+/* ===== example chip row ===== */
+.ex{background:var(--chip-bg);border-radius:3px;padding:14px 18px;font-size:1.3rem;margin:14px 0;max-width:74ch}
+.ex .ex-h{font-size:1.1rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px}
+.ex .formula{font-family:ui-monospace,Menlo,monospace;font-size:1.3rem;font-variant-numeric:tabular-nums}
+
+/* ===== checklist ===== */
+.chk{list-style:none;margin-left:0}
+.chk li{padding-left:26px;position:relative}
+.chk li::before{content:"";position:absolute;left:0;top:5px;width:13px;height:13px;border:1px solid var(--soft);border-radius:2px;background:#fff}
+
+/* ===== evaluator journey ===== */
+.journey{counter-reset:j;margin:16px 0}
+.jstep{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
+.jstep:last-child{border-bottom:none}
+.jstep .jn{counter-increment:j;flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--fg);color:#fff;font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.jstep .jn::before{content:counter(j)}
+.jstep .jt .jt-h{font-weight:700;font-size:1.4rem}
+.jstep .jt p{font-size:1.3rem;color:var(--fg);margin:2px 0 0}
+
+/* ===== footer ===== */
+.ftr{border-top:1px solid var(--line);padding-top:16px;font-size:1.2rem;color:var(--muted)}
+
+@media (max-width:680px){
+  .flow2{grid-template-columns:1fr;position:relative}
+  .flow2 .col+.col{border-left:none;border-top:1px solid var(--line-edge)}
+  .hdr{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+@media print{
+  body{background:#fff}
+  .lang-sw{display:none}
+}
+</style>
+</head>
+<body class="lang-es">
+<div class="page">
+
+<!-- ========== HEADER ========== -->
+<header class="hdr">
+  <div>
+    <img class="client-logo" src="https://anii.org.uy/html/img/logo_anni.png" alt="ANII — Agencia Nacional de Investigación e Innovación">
+    <div class="eyebrow">P3 · Gespro</div>
+    <h1><span class="es">Módulo de Evaluación — Guía Funcional</span><span class="en">Evaluation Module — Functional Guide</span><span style="color:var(--accent)">.</span></h1>
+    <div class="sub">
+      <span class="es">Conceptos, mapa del proceso, configuración paso a paso y operación diaria del sistema de evaluación de proyectos.</span>
+      <span class="en">Concepts, process map, step-by-step configuration and day-to-day operation of the project evaluation system.</span>
+    </div>
+  </div>
+  <div class="lang-sw" role="group" aria-label="Idioma / Language">
+    <button id="btnEs" class="on" onclick="setLang('es')">ES</button>
+    <button id="btnEn" onclick="setLang('en')">EN</button>
+  </div>
+</header>
+
+<!-- ========== TOC ========== -->
+<nav class="toc">
+  <a href="#s1"><span class="es">Introducción</span><span class="en">Introduction</span></a>
+  <a href="#s2"><span class="es">Mapa del proceso</span><span class="en">Process map</span></a>
+  <a href="#s3"><span class="es">Conceptos</span><span class="en">Concepts</span></a>
+  <a href="#s4"><span class="es">Configuración</span><span class="en">Configuration</span></a>
+  <a href="#s5"><span class="es">Portal del evaluador</span><span class="en">Evaluator portal</span></a>
+  <a href="#s6"><span class="es">Operación diaria</span><span class="en">Daily operation</span></a>
+  <a href="#s7"><span class="es">Puntajes</span><span class="en">Scoring</span></a>
+  <a href="#s8"><span class="es">Permisos</span><span class="en">Permissions</span></a>
+  <a href="#s9">FAQ</a>
+</nav>
+<!-- ========== 1. INTRODUCTION ========== -->
+<section id="s1">
+  <div class="sec-h"><span class="n">01</span><span class="es">Introducción conceptual</span><span class="en">Conceptual introduction</span></div>
+
+  <p class="es">El módulo de Evaluación permite que <strong>evaluadores externos</strong> (pares, expertos, comités) evalúen los <strong>proyectos</strong> presentados a una <strong>Convocatoria</strong>, completando formularios estructurados a través del <strong>Portal</strong>. Los resultados —puntajes, juicios, observaciones— quedan consolidados en P3 para la toma de decisiones: ranking, adjudicación, comité.</p>
+  <p class="en">The Evaluation module lets <strong>external evaluators</strong> (peers, experts, committees) assess the <strong>projects</strong> submitted to a <strong>Call</strong> by completing structured forms through the <strong>Portal</strong>. The results — scores, judgments, remarks — are consolidated in P3 for decision-making: ranking, award, committee review.</p>
+
+  <p class="es">P3 implementa la jerarquía PMI:</p>
+  <p class="en">P3 implements the PMI hierarchy:</p>
+
+  <div class="hier">
+    <div class="lvl l1"><span class="name"><span class="es">Instrumento</span><span class="en">Instrument</span></span><span class="tag">Portfolio</span></div>
+    <div class="lvl l2"><span class="elbow">└─</span><span class="name"><span class="es">Convocatoria</span><span class="en">Call</span></span><span class="tag"><span class="es">Programa / Call</span><span class="en">Program</span></span></div>
+    <div class="lvl l3"><span class="elbow">└─</span><span class="name"><span class="es">Proyecto</span><span class="en">Project</span></span><span class="tag"><span class="es">Postulación / propuesta</span><span class="en">Application / proposal</span></span></div>
+  </div>
+
+  <p class="es">Sobre esa jerarquía, el sistema de evaluación agrega las siguientes piezas:</p>
+  <p class="en">On top of that hierarchy, the evaluation system adds the following pieces:</p>
+
+  <table>
+    <thead><tr>
+      <th><span class="es">Concepto funcional</span><span class="en">Functional concept</span></th>
+      <th><span class="es">Qué es</span><span class="en">What it is</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><strong><span class="es">Pauta / Escenario de evaluación</span><span class="en">Evaluation scenario (template)</span></strong></td><td><span class="es">Plantilla reutilizable que define <em>cómo</em> se evalúa: qué módulos contiene, con qué peso cada uno y cómo se cierra la evaluación.</span><span class="en">Reusable template defining <em>how</em> evaluation happens: which modules it contains, each module's weight, and how the evaluation closes.</span></td></tr>
+      <tr><td><strong><span class="es">Módulo de evaluación</span><span class="en">Evaluation module</span></strong></td><td><span class="es">Cada sección de la pauta (p. ej. "Evaluación técnica", "Evaluación económica"). Su contenido es un <strong>formulario Poddera Forms de tipo <code>EVAL_MODULE</code></strong>. Tiene un <strong>peso</strong> (0–100) que pondera su puntaje.</span><span class="en">Each section of the scenario (e.g. "Technical evaluation", "Economic evaluation"). Its content is a <strong>Poddera Forms form of kind <code>EVAL_MODULE</code></strong>. It has a <strong>weight</strong> (0–100) that ponders its score.</span></td></tr>
+      <tr><td><strong><span class="es">Tipología de módulo</span><span class="en">Module typology</span></strong></td><td><span class="es">Catálogo que clasifica los módulos (técnica, económica, global/comité…). El nombre del módulo proviene de su tipología.</span><span class="en">Catalog classifying modules (technical, economic, global/committee…). The module's name comes from its typology.</span></td></tr>
+      <tr><td><strong><span class="es">Evaluación del proyecto</span><span class="en">Project evaluation</span></strong></td><td><span class="es">Contenedor 1-a-1 con el Proyecto: agrupa todas las evaluaciones del proyecto, la pauta aplicada, plazos, visibilidad y puntajes agregados.</span><span class="en">One-to-one container with the Project: groups all the project's evaluations, the applied scenario, deadlines, visibility and aggregated scores.</span></td></tr>
+      <tr><td><strong><span class="es">Evaluación</span><span class="en">Evaluation</span></strong></td><td><span class="es">El encargo concreto: <em>un evaluador</em> evalúa <em>un proyecto</em> siguiendo <em>una pauta</em>. Un proyecto puede tener de 0 a N evaluaciones.</span><span class="en">The concrete assignment: <em>one evaluator</em> assesses <em>one project</em> following <em>one scenario</em>. A project can have 0 to N evaluations.</span></td></tr>
+      <tr><td><strong><span class="es">Evaluador</span><span class="en">Evaluator</span></strong></td><td><span class="es">Persona registrada como evaluador: disciplinas, idiomas, CV, ORCID, estado operativo, email de notificación.</span><span class="en">Person registered as evaluator: disciplines, languages, CV, ORCID, operational status, notification email.</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="es">Mapa de conceptos</span><span class="en">Concept map</span></h3>
+  <div class="dgram">
+  <svg viewBox="0 0 760 312" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mapa de conceptos del módulo de evaluación">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#A9B1BF" stroke-width="1.4"/>
+      </marker>
+    </defs>
+    <style>
+      .bx{fill:#fff;stroke:#E2E7F0;rx:3}
+      .nm{font:700 13px 'Lato',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;fill:#1E1E1E}
+      .sb{font:400 10.5px 'Lato',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;fill:#667082}
+      .crd{font:600 10.5px 'Lato',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;fill:#667082}
+      .ln{stroke:#A9B1BF;stroke-width:1.2;fill:none}
+      .lnd{stroke:#C3C9D4;stroke-width:1.2;fill:none;stroke-dasharray:4 4}
+    </style>
+    <!-- == row 1: configuration side == -->
+    <rect class="bx" x="16" y="28" width="140" height="48" rx="3"/>
+    <text class="nm es" x="86" y="57" text-anchor="middle">Convocatoria</text>
+    <text class="nm en" x="86" y="57" text-anchor="middle">Call</text>
+    <rect x="241" y="33" width="150" height="48" rx="3" fill="#84BBFF"/>
+    <rect x="236" y="28" width="150" height="48" rx="3" fill="#fff" stroke="#3D6AFB"/>
+    <text class="nm es" x="311" y="49" text-anchor="middle">Pauta</text>
+    <text class="nm en" x="311" y="49" text-anchor="middle">Scenario</text>
+    <text class="sb es" x="311" y="65" text-anchor="middle">plantilla reutilizable</text>
+    <text class="sb en" x="311" y="65" text-anchor="middle">reusable template</text>
+    <rect class="bx" x="486" y="28" width="258" height="48" rx="3"/>
+    <text class="nm es" x="615" y="49" text-anchor="middle">Módulo de evaluación</text>
+    <text class="nm en" x="615" y="49" text-anchor="middle">Evaluation module</text>
+    <text class="sb es" x="615" y="65" text-anchor="middle">formulario EVAL_MODULE · peso %</text>
+    <text class="sb en" x="615" y="65" text-anchor="middle">EVAL_MODULE form · weight %</text>
+    <line class="ln" x1="156" y1="52" x2="236" y2="52" marker-end="url(#arr)"/>
+    <text class="crd es" x="196" y="44" text-anchor="middle">0..n · una default</text>
+    <text class="crd en" x="196" y="44" text-anchor="middle">0..n · one default</text>
+    <line class="ln" x1="386" y1="52" x2="486" y2="52" marker-end="url(#arr)"/>
+    <text class="crd" x="436" y="44" text-anchor="middle">1..n</text>
+    <!-- == dashed: scenario instantiated by each evaluation == -->
+    <path class="lnd" d="M 311 76 V 150 H 511 V 232" marker-end="url(#arr)"/>
+    <text class="crd es" x="411" y="142" text-anchor="middle">cada evaluación instancia los módulos de su pauta</text>
+    <text class="crd en" x="411" y="142" text-anchor="middle">each evaluation instantiates its scenario's modules</text>
+    <!-- == row 2: operation side == -->
+    <rect class="bx" x="16" y="240" width="120" height="48" rx="3"/>
+    <text class="nm es" x="76" y="269" text-anchor="middle">Proyecto</text>
+    <text class="nm en" x="76" y="269" text-anchor="middle">Project</text>
+    <rect class="bx" x="196" y="240" width="190" height="48" rx="3"/>
+    <text class="nm es" x="291" y="261" text-anchor="middle">Evaluación del proyecto</text>
+    <text class="nm en" x="291" y="261" text-anchor="middle">Project evaluation</text>
+    <text class="sb es" x="291" y="277" text-anchor="middle">una por proyecto · plazos · puntajes</text>
+    <text class="sb en" x="291" y="277" text-anchor="middle">one per project · deadlines · scores</text>
+    <rect class="bx" x="446" y="240" width="130" height="48" rx="3"/>
+    <text class="nm es" x="511" y="261" text-anchor="middle">Evaluación</text>
+    <text class="nm en" x="511" y="261" text-anchor="middle">Evaluation</text>
+    <text class="sb es" x="511" y="277" text-anchor="middle">el encargo</text>
+    <text class="sb en" x="511" y="277" text-anchor="middle">the assignment</text>
+    <rect class="bx" x="636" y="240" width="110" height="48" rx="3"/>
+    <text class="nm es" x="691" y="269" text-anchor="middle">Evaluador</text>
+    <text class="nm en" x="691" y="269" text-anchor="middle">Evaluator</text>
+    <line class="ln" x1="136" y1="264" x2="196" y2="264" marker-end="url(#arr)"/>
+    <text class="crd" x="166" y="256" text-anchor="middle">1 : 1</text>
+    <line class="ln" x1="386" y1="264" x2="446" y2="264" marker-end="url(#arr)"/>
+    <text class="crd" x="416" y="256" text-anchor="middle">0..n</text>
+    <line class="ln" x1="576" y1="264" x2="636" y2="264" marker-end="url(#arr)"/>
+    <text class="crd" x="606" y="256" text-anchor="middle">1</text>
+  </svg>
+  </div>
+  <p class="dgram-cap"><span class="es">Una convocatoria define <em>cómo</em> se evalúa (pautas y módulos); cada proyecto recibe <em>su</em> proceso (evaluación del proyecto) con tantas evaluaciones como evaluadores asignados.</span><span class="en">A call defines <em>how</em> evaluation happens (scenarios and modules); each project gets <em>its own</em> process (project evaluation) with as many evaluations as assigned evaluators.</span></p>
+</section>
+
+<!-- ========== 2. PROCESS MAP ========== -->
+<section id="s2">
+  <div class="sec-h"><span class="n">02</span><span class="es">Mapa rápido: cómo nace una evaluación</span><span class="en">Quick map: how an evaluation is born</span></div>
+
+  <div class="flow2">
+    <div class="flow-bridge" aria-hidden="true">→</div>
+    <div class="col">
+      <div class="col-h cfg"><span class="es">Configuración — una vez por convocatoria</span><span class="en">Configuration — once per call</span></div>
+      <div class="fstep"><div class="num">1</div><div class="txt"><span class="es">Crear los formularios <code>EVAL_MODULE</code> en Poddera Forms (uno por módulo).</span><span class="en">Create the <code>EVAL_MODULE</code> forms in Poddera Forms (one per module).</span></div></div>
+      <div class="fstep"><div class="num">2</div><div class="txt"><span class="es">Crear las Tipologías de módulo.</span><span class="en">Create the Module typologies.</span></div></div>
+      <div class="fstep"><div class="num">3</div><div class="txt"><span class="es">Crear la Pauta con sus módulos: peso y formulario.</span><span class="en">Create the Scenario with its modules: weight and form.</span></div></div>
+      <div class="fstep"><div class="num">4</div><div class="txt"><span class="es">Vincular la pauta a la Convocatoria (default, plazos).</span><span class="en">Link the scenario to the Call (default, deadlines).</span></div></div>
+    </div>
+    <div class="col">
+      <div class="col-h ops"><span class="es">Operación — por proyecto</span><span class="en">Operation — per project</span></div>
+      <div class="fstep"><div class="num">5</div><div class="txt"><span class="es">Proyecto postulado a la convocatoria.</span><span class="en">Project submitted to the call.</span></div></div>
+      <div class="fstep"><div class="num">6</div><div class="txt"><span class="es">Crear la Evaluación del Proyecto (elegir pauta + fecha límite).</span><span class="en">Create the Project Evaluation record (choose scenario + deadline).</span></div></div>
+      <div class="fstep"><div class="num">7</div><div class="txt"><span class="es">Asignar evaluadores → se crea una evaluación por evaluador (email de invitación).</span><span class="en">Assign evaluators → one evaluation is created per evaluator (invitation email).</span></div></div>
+      <div class="fstep"><div class="num">8</div><div class="txt"><span class="es">El evaluador entra al Portal, completa los formularios de cada módulo y finaliza.</span><span class="en">The evaluator enters the Portal, completes each module's forms and finishes.</span></div></div>
+      <div class="fstep"><div class="num">9</div><div class="txt"><span class="es">P3 calcula puntajes (módulo → evaluación → promedio del proyecto) y los muestra en la ficha de Proyecto Evaluación.</span><span class="en">P3 computes scores (module → evaluation → project average) and shows them in the Project Evaluation record.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 3. CONCEPTS IN DEPTH ========== -->
+<section id="s3">
+  <div class="sec-h"><span class="n">03</span><span class="es">Los conceptos en profundidad</span><span class="en">Concepts in depth</span></div>
+
+  <h3>3.1 <span class="es">Pauta / Escenario de evaluación</span><span class="en">Evaluation scenario</span></h3>
+  <p class="es">Es la plantilla. Define:</p>
+  <p class="en">It is the template. It defines:</p>
+  <ul>
+    <li><span class="es"><strong>Código y descripción</strong> — identificación de la pauta.</span><span class="en"><strong>Code and description</strong> — scenario identification.</span></li>
+    <li><span class="es"><strong>Módulos</strong> — lista ordenada de módulos, cada uno con su formulario y peso.</span><span class="en"><strong>Modules</strong> — ordered list of modules, each with its form and weight.</span></li>
+    <li><span class="es"><strong>Comportamiento de cierre en el Portal</strong>: <strong>Mostrar pestaña "Finalizar"</strong> (por defecto, no): el evaluador confirma el cierre en una pestaña explícita. <strong>El último módulo finaliza la evaluación</strong> (por defecto, sí): la evaluación se cierra automáticamente al terminar el último módulo.</span><span class="en"><strong>Portal closing behavior</strong>: <strong>Show "Finish" tab</strong> (default: no): the evaluator confirms closure in an explicit tab. <strong>Last module finishes the evaluation</strong> (default: yes): the evaluation closes automatically when the last module is finished.</span></li>
+    <li><span class="es"><strong>Habilitada</strong> — las pautas viejas se deshabilitan, no se borran: siguen referenciadas por evaluaciones históricas.</span><span class="en"><strong>Enabled</strong> — old scenarios are disabled, not deleted: they remain referenced by historical evaluations.</span></li>
+  </ul>
+  <p><span class="es">Una pauta es reutilizable: puede vincularse a varias convocatorias.</span><span class="en">A scenario is reusable: it can be linked to several calls.</span></p>
+
+  <h3>3.2 <span class="es">Módulo</span><span class="en">Module</span></h3>
+  <ul>
+    <li><span class="es"><strong>Tipología</strong> — de donde toma el nombre y la clasificación. Puede estar marcada como <strong>global</strong> (ver §3.6).</span><span class="en"><strong>Typology</strong> — from which it takes its name and classification. May be flagged as <strong>global</strong> (see §3.6).</span></li>
+    <li><span class="es"><strong>Formulario</strong> — un formulario Poddera Forms publicado, de tipo <code>EVAL_MODULE</code>, identificado por servidor de forms + id de formulario.</span><span class="en"><strong>Form</strong> — a published Poddera Forms form of kind <code>EVAL_MODULE</code>, identified by form server + form id.</span></li>
+    <li><span class="es"><strong>Peso</strong> — porcentaje 0–100 con el que el puntaje del módulo pondera en el puntaje de la evaluación. Si se omite, el sistema lo normaliza a <strong>100</strong>.</span><span class="en"><strong>Weight</strong> — percentage 0–100 with which the module's score ponders into the evaluation score. If omitted, the system normalizes it to <strong>100</strong>.</span></li>
+    <li><span class="es"><strong>Orden de presentación</strong> — orden de las pestañas en el portal.</span><span class="en"><strong>Display order</strong> — tab order in the portal.</span></li>
+    <li><span class="es"><strong>Deshabilitado</strong> — para retirar un módulo sin romper el histórico.</span><span class="en"><strong>Disabled</strong> — to retire a module without breaking history.</span></li>
+  </ul>
+  <div class="warn-block">
+    <span class="es"><strong>El sistema NO valida que los pesos de la pauta sumen 100.</strong> Es responsabilidad del configurador. Una pauta con pesos 60+60 produce puntajes inflados sin aviso.</span>
+    <span class="en"><strong>The system does NOT validate that the scenario's weights add up to 100.</strong> It is the configurator's responsibility. A scenario with weights 60+60 produces inflated scores with no warning.</span>
+  </div>
+
+  <h3>3.3 <span class="es">Evaluación del proyecto</span><span class="en">Project evaluation</span></h3>
+  <p class="es">Ficha 1-a-1 con el proyecto. Concentra:</p>
+  <p class="en">One-to-one record with the project. It concentrates:</p>
+  <ul>
+    <li><span class="es"><strong>Pauta aplicada</strong> (puede tomarse la default de la convocatoria o elegirse otra de las vinculadas).</span><span class="en"><strong>Applied scenario</strong> (the call's default, or another of the linked ones).</span></li>
+    <li><span class="es"><strong>Plazos del proceso</strong>: fecha límite o días de plazo.</span><span class="en"><strong>Process deadlines</strong>: limit date or days allowed.</span></li>
+    <li><span class="es"><strong>Las evaluaciones</strong> del proyecto (tabla con evaluador, estado, puntaje, módulos).</span><span class="en"><strong>The project's evaluations</strong> (table with evaluator, status, score, modules).</span></li>
+    <li><span class="es"><strong>Puntajes agregados</strong>: promedio de las evaluaciones (calculado) y <strong>puntaje global</strong> (cargado aparte — ver §3.6).</span><span class="en"><strong>Aggregated scores</strong>: evaluation average (computed) and <strong>global score</strong> (loaded separately — see §3.6).</span></li>
+    <li><span class="es"><strong>Responsables de elegibilidad y pertinencia</strong> (usuarios internos).</span><span class="en"><strong>Eligibility and pertinence responsibles</strong> (internal users).</span></li>
+    <li><span class="es"><strong>Permisos de lectura</strong>: a qué otras personas se les permite ver las evaluaciones del proyecto (pestaña "Permisos de Lectura", función de seguridad 1484).</span><span class="en"><strong>Read permissions</strong>: which other people may view the project's evaluations ("Read Permissions" tab, security function 1484).</span></li>
+    <li><span class="es"><strong>Comentarios</strong> del proceso.</span><span class="en"><strong>Comments</strong> on the process.</span></li>
+  </ul>
+  <p>
+    <span class="es">Estado calculado (no persistido): <span class="dot s"></span><em>Pendiente de inicio</em> (sin evaluaciones) · <span class="dot o"></span><em>Abierta</em> (al menos una evaluación abierta) · <span class="dot g"></span><em>Cerrada</em> (todas cerradas).</span>
+    <span class="en">Computed status (not persisted): <span class="dot s"></span><em>Pending start</em> (no evaluations) · <span class="dot o"></span><em>Open</em> (at least one open evaluation) · <span class="dot g"></span><em>Closed</em> (all closed).</span>
+  </p>
+
+  <h3>3.4 <span class="es">Evaluación</span><span class="en">Evaluation</span></h3>
+  <p class="es">El encargo a un evaluador concreto. Campos funcionales relevantes:</p>
+  <p class="en">The assignment to a concrete evaluator. Relevant functional fields:</p>
+  <ul>
+    <li><span class="es"><strong>Evaluador</strong> asignado y <strong>pauta</strong> con la que evalúa.</span><span class="en">Assigned <strong>evaluator</strong> and the <strong>scenario</strong> used.</span></li>
+    <li><span class="es"><strong>Estado</strong> (ver §3.5) con fecha, usuario y comentario del último cambio.</span><span class="en"><strong>Status</strong> (see §3.5) with date, user and comment of the last change.</span></li>
+    <li><span class="es"><strong>Fechas</strong>: solicitada, límite de entrega (deadline), primer acceso (lectura), inicio y fin del trabajo.</span><span class="en"><strong>Dates</strong>: requested, delivery deadline, first access (read), start and end of work.</span></li>
+    <li><span class="es"><strong>Puntaje</strong> — calculado a partir de los módulos (ver §7).</span><span class="en"><strong>Score</strong> — computed from the modules (see §7).</span></li>
+    <li><span class="es"><strong>Módulos instanciados</strong> — uno por módulo de la pauta, cada uno con su instancia de formulario, progreso, puntaje, comentario y fecha de finalización.</span><span class="en"><strong>Instantiated modules</strong> — one per scenario module, each with its form instance, progress, score, comment and finish date.</span></li>
+    <li><span class="es"><strong>Pendiente de envío</strong> — si quedó pendiente el email de invitación.</span><span class="en"><strong>Pending shipping</strong> — whether the invitation email is still pending.</span></li>
+    <li><span class="es"><strong>Contrato requerido</strong> — opcionalmente la evaluación exige aceptar un acuerdo/contrato antes de comenzar (estado <em>Pendiente aceptación</em>).</span><span class="en"><strong>Contract required</strong> — optionally the evaluation requires accepting an agreement/contract before starting (<em>Pending acceptance</em> status).</span></li>
+    <li><span class="es"><strong>Valoración del trabajo del evaluador</strong> (ITS 10199): observaciones internas, rating 1..5 con comentario — para construir histórico de calidad de los evaluadores.</span><span class="en"><strong>Evaluator work rating</strong> (ITS 10199): internal remarks, 1..5 rating with comment — to build an evaluator quality history.</span></li>
+  </ul>
+
+  <h3>3.5 <span class="es">Estados de una evaluación</span><span class="en">Evaluation statuses</span></h3>
+  <p><span class="es">Catálogo administrable de estados, con estos estados estándar:</span><span class="en">Administrable status catalog, with these standard statuses:</span></p>
+  <div class="dgram">
+  <svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flujo de estados de una evaluación">
+    <defs>
+      <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#A9B1BF" stroke-width="1.4"/>
+      </marker>
+    </defs>
+    <style>
+      .sx{fill:#fff;stroke:#E2E7F0}
+      .sn{font:700 12px 'Lato',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;fill:#1E1E1E}
+      .sn2{font:700 11px 'Lato',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;fill:#1E1E1E}
+      .lb{font:400 10.5px 'Lato',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;fill:#667082}
+      .fl{stroke:#A9B1BF;stroke-width:1.2;fill:none}
+    </style>
+    <!-- == pending == -->
+    <rect class="sx" x="10" y="30" width="180" height="46" rx="3"/>
+    <circle cx="26" cy="53" r="4" fill="#C3C9D4"/>
+    <text class="sn2 es" x="38" y="50">Pendiente aceptación</text>
+    <text class="sn2 es" x="38" y="64">/ pendiente envío</text>
+    <text class="sn2 en" x="38" y="50">Pending acceptance</text>
+    <text class="sn2 en" x="38" y="64">/ pending shipping</text>
+    <!-- == open == -->
+    <rect x="257" y="35" width="104" height="46" rx="3" fill="#84BBFF"/>
+    <rect x="252" y="30" width="104" height="46" rx="3" fill="#fff" stroke="#3D6AFB"/>
+    <circle cx="270" cy="53" r="4" fill="#E5A674"/>
+    <text class="sn es" x="282" y="57">Abierta</text>
+    <text class="sn en" x="282" y="57">Open</text>
+    <!-- == finished == -->
+    <rect class="sx" x="470" y="30" width="124" height="46" rx="3"/>
+    <circle cx="488" cy="53" r="4" fill="#59C8B0"/>
+    <text class="sn es" x="500" y="57">Terminada</text>
+    <text class="sn en" x="500" y="57">Finished</text>
+    <!-- == reopened == -->
+    <rect class="sx" x="470" y="170" width="124" height="46" rx="3"/>
+    <circle cx="488" cy="193" r="4" fill="#E5A674"/>
+    <text class="sn es" x="500" y="197">Reabierta</text>
+    <text class="sn en" x="500" y="197">Reopened</text>
+    <!-- == cancelled == -->
+    <rect class="sx" x="242" y="170" width="132" height="58" rx="3"/>
+    <circle cx="258" cy="199" r="4" fill="#E88790"/>
+    <text class="sn2 es" x="268" y="195">Cancelada /</text>
+    <text class="sn2 es" x="268" y="210">por incumplimiento</text>
+    <text class="sn2 en" x="268" y="195">Cancelled /</text>
+    <text class="sn2 en" x="268" y="210">non-compliance</text>
+    <!-- == transitions == -->
+    <line class="fl" x1="190" y1="53" x2="252" y2="53" marker-end="url(#arr2)"/>
+    <text class="lb es" x="221" y="22" text-anchor="middle">acepta / envía</text>
+    <text class="lb en" x="221" y="22" text-anchor="middle">accepts / sent</text>
+    <line class="fl" x1="356" y1="53" x2="470" y2="53" marker-end="url(#arr2)"/>
+    <text class="lb es" x="413" y="45" text-anchor="middle">finaliza</text>
+    <text class="lb en" x="413" y="45" text-anchor="middle">finishes</text>
+    <line class="fl" x1="514" y1="76" x2="514" y2="170" marker-end="url(#arr2)"/>
+    <text class="lb es" x="506" y="127" text-anchor="end">reabrir (admin)</text>
+    <text class="lb en" x="506" y="127" text-anchor="end">reopen (admin)</text>
+    <line class="fl" x1="550" y1="170" x2="550" y2="76" marker-end="url(#arr2)"/>
+    <text class="lb es" x="558" y="127" text-anchor="start">finalizar</text>
+    <text class="lb en" x="558" y="127" text-anchor="start">finish</text>
+    <line class="fl" x1="304" y1="76" x2="304" y2="170" marker-end="url(#arr2)"/>
+    <text class="lb es" x="312" y="127" text-anchor="start">cancelar (manual)</text>
+    <text class="lb en" x="312" y="127" text-anchor="start">cancel (manual)</text>
+  </svg>
+  </div>
+  <p class="dgram-cap"><span class="es">El ciclo Terminada ↔ Reabierta puede repetirse las veces necesarias. La cancelación por incumplimiento es manual: no hay automatismo por vencimiento del plazo.</span><span class="en">The Finished ↔ Reopened cycle can repeat as many times as needed. Cancellation for non-compliance is manual: there is no automation on deadline expiry.</span></p>
+  <table>
+    <thead><tr><th>Id</th><th><span class="es">Estado</span><span class="en">Status</span></th><th><span class="es">¿Abierta?</span><span class="en">Open?</span></th><th><span class="es">Significado</span><span class="en">Meaning</span></th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><span class="dot o"></span><strong><span class="es">Abierta</span><span class="en">Open</span></strong></td><td><span class="es">Sí</span><span class="en">Yes</span></td><td><span class="es">Estado inicial por defecto. El evaluador puede trabajar.</span><span class="en">Default initial status. The evaluator can work.</span></td></tr>
+      <tr><td>2</td><td><span class="dot g"></span><strong><span class="es">Terminada</span><span class="en">Finished</span></strong></td><td>No</td><td><span class="es">El evaluador finalizó (o un administrativo forzó el cierre). Formularios bloqueados.</span><span class="en">The evaluator finished (or an administrator forced closure). Forms locked.</span></td></tr>
+      <tr><td>3</td><td><span class="dot o"></span><strong><span class="es">Reabierta</span><span class="en">Reopened</span></strong></td><td><span class="es">Sí</span><span class="en">Yes</span></td><td><span class="es">Un administrativo la reabrió para retrabajo. Formularios desbloqueados.</span><span class="en">An administrator reopened it for rework. Forms unlocked.</span></td></tr>
+      <tr><td>4</td><td><span class="dot r"></span><strong><span class="es">Cancelada</span><span class="en">Cancelled</span></strong></td><td>No</td><td><span class="es">Encargo retirado.</span><span class="en">Assignment withdrawn.</span></td></tr>
+      <tr><td>7</td><td><span class="dot r"></span><strong><span class="es">Cancelada por incumplimiento</span><span class="en">Cancelled for non-compliance</span></strong></td><td>No</td><td><span class="es">El evaluador no cumplió el plazo.</span><span class="en">The evaluator missed the deadline.</span></td></tr>
+      <tr><td>8</td><td><span class="dot s"></span><strong><span class="es">Pendiente aceptación / Pendiente envío</span><span class="en">Pending acceptance / Pending shipping</span></strong></td><td>No</td><td><span class="es">Previo al inicio (p. ej. contrato pendiente).</span><span class="en">Prior to start (e.g. contract pending).</span></td></tr>
+    </tbody>
+  </table>
+  <p><span class="es">La propiedad clave de cada estado es <strong>abierta/cerrada</strong>: gobierna si el evaluador puede editar y si las instancias de formulario están bloqueadas. El ciclo Finalizar ↔ Reabrir puede repetirse las veces necesarias.</span><span class="en">The key property of each status is <strong>open/closed</strong>: it governs whether the evaluator can edit and whether the form instances are locked. The Finish ↔ Reopen cycle can repeat as many times as needed.</span></p>
+
+  <h3>3.6 <span class="es">Puntaje global y "Módulo Global"</span><span class="en">Global score and the "Global Module"</span></h3>
+  <p><span class="es">Existen <strong>dos</strong> números a nivel proyecto, independientes entre sí:</span><span class="en">There are <strong>two</strong> project-level numbers, independent of each other:</span></p>
+  <ol>
+    <li><span class="es"><strong>Promedio de evaluaciones</strong> — calculado automáticamente: media de los puntajes de las evaluaciones del proyecto (solo cuenta evaluaciones con puntaje, en estados Abierta/Terminada/Reabierta).</span><span class="en"><strong>Evaluation average</strong> — computed automatically: mean of the project's evaluation scores (only evaluations with a score, in Open/Finished/Reopened statuses).</span></li>
+    <li><span class="es"><strong>Puntaje global</strong> — valor cargado aparte, <strong>no</strong> es el promedio. Convención (CU ANII): es la puntuación del único <strong>Módulo Global</strong> —el módulo cuya tipología está marcada como <strong>global</strong>, típicamente el módulo de comité— que existe una sola vez entre todas las evaluaciones del proyecto. Funciona como nota final/override del comité.</span><span class="en"><strong>Global score</strong> — loaded separately; it is <strong>not</strong> the average. Convention (ANII use case): it is the score of the single <strong>Global Module</strong> — the module whose typology is flagged as <strong>global</strong>, typically the committee module — which exists only once across all the project's evaluations. It works as the committee's final grade/override.</span></li>
+  </ol>
+  <p><span class="es">En el portal, si la evaluación contiene un módulo global, el evaluador (comité) ve además las otras evaluaciones del proyecto para fundamentar su juicio.</span><span class="en">In the portal, if the evaluation contains a global module, the (committee) evaluator additionally sees the project's other evaluations to support their judgment.</span></p>
+
+  <h3>3.7 <span class="es">Evaluador</span><span class="en">Evaluator</span></h3>
+  <p><span class="es">Persona del sistema con perfil de evaluador: estado operativo, disciplinas/áreas de expertise (n..n), idiomas de trabajo, CV (documento + versiones de texto), ORCID, keywords, datos de facturación, y <strong>email de evaluaciones</strong> (puede usar el email principal de la persona o uno específico). Existe además un flujo de <strong>auto-registro de evaluadores</strong> vía portal con un formulario de postulación.</span><span class="en">A system person with an evaluator profile: operational status, disciplines/expertise areas (n..n), working languages, CV (document + text versions), ORCID, keywords, billing data, and an <strong>evaluations email</strong> (the person's main email or a specific one). There is also an evaluator <strong>self-registration flow</strong> via the portal with an application form.</span></p>
+</section>
+<!-- ========== 4. CONFIGURATION ========== -->
+<section id="s4">
+  <div class="sec-h"><span class="n">04</span><span class="es">Guía de configuración paso a paso</span><span class="en">Step-by-step configuration guide</span></div>
+
+  <h3>4.0 <span class="es">Prerrequisitos</span><span class="en">Prerequisites</span></h3>
+  <ol>
+    <li><span class="es"><strong>Servidor de Forms</strong> configurado y accesible desde P3 (Administración → Form Servers).</span><span class="en"><strong>Form Server</strong> configured and reachable from P3 (Administration → Form Servers).</span></li>
+    <li><span class="es"><strong>Permisos</strong>: el perfil del configurador necesita las funciones de seguridad del menú de Evaluación (ver §8).</span><span class="en"><strong>Permissions</strong>: the configurator's profile needs the Evaluation menu security functions (see §8).</span></li>
+    <li><span class="es"><strong>Catálogo de estados</strong> cargado con los estados estándar.</span><span class="en"><strong>Status catalog</strong> loaded with the standard statuses.</span></li>
+    <li><span class="es"><strong>Plantillas de email</strong> para la invitación a evaluadores (y plantilla de contrato si aplica).</span><span class="en"><strong>Email templates</strong> for evaluator invitations (plus contract template if applicable).</span></li>
+  </ol>
+
+  <h3>4.1 <span class="es">Crear los formularios de módulo en Poddera Forms</span><span class="en">Create the module forms in Poddera Forms</span></h3>
+  <ol>
+    <li><span class="es">En el diseñador de Poddera Forms, crear el formulario con <strong>kind = <code>EVAL_MODULE</code></strong> (es lo que hace que P3 lo ofrezca en los combos de configuración de módulos).</span><span class="en">In the Poddera Forms designer, create the form with <strong>kind = <code>EVAL_MODULE</code></strong> (that is what makes P3 list it in the module configuration combos).</span></li>
+    <li><span class="es">Diseñar las preguntas. Convención de scoring: las opciones de las preguntas puntuables llevan su valor, y el formulario calcula un campo <strong><code>score</code></strong> (0–100 recomendado).</span><span class="en">Design the questions. Scoring convention: scorable question options carry their value, and the form computes a <strong><code>score</code></strong> field (0–100 recommended).</span></li>
+    <li><span class="es">Mapear los campos que P3 debe leer (<strong>fieldMappedForTransformation</strong>): como mínimo <code>score</code>; opcionalmente progreso (<code>instanceprogress</code>) y comentario global (<code>globalComment</code>).</span><span class="en">Map the fields P3 must read (<strong>fieldMappedForTransformation</strong>): at minimum <code>score</code>; optionally progress (<code>instanceprogress</code>) and global comment (<code>globalComment</code>).</span></li>
+    <li><span class="es"><strong>Publicar</strong> el formulario (P3 solo lista formularios publicados).</span><span class="en"><strong>Publish</strong> the form (P3 only lists published forms).</span></li>
+  </ol>
+  <p><span class="es warn-i">El contrato es por convención: P3 lee el campo <code>score</code> tal cual lo deja el formulario. No hay validación de rango del lado de P3 — definan la escala en el formulario y úsenla consistentemente en todos los módulos de la pauta.</span><span class="en warn-i">The contract is by convention: P3 reads the <code>score</code> field exactly as the form leaves it. There is no range validation on the P3 side — define the scale in the form and use it consistently across all the scenario's modules.</span></p>
+
+  <h3>4.2 <span class="es">Crear las tipologías de módulo</span><span class="en">Create the module typologies</span></h3>
+  <p><span class="es">Menú <strong>Evaluación → Tipologías de módulo</strong> (función 1309):</span><span class="en">Menu <strong>Evaluation → Module typologies</strong> (function 1309):</span></p>
+  <ol>
+    <li><span class="es">Crear una tipología por tipo de módulo: p. ej. <em>Evaluación técnica</em>, <em>Evaluación económica</em>, <em>Módulo Global / Comité</em>.</span><span class="en">Create one typology per module type: e.g. <em>Technical evaluation</em>, <em>Economic evaluation</em>, <em>Global Module / Committee</em>.</span></li>
+    <li><span class="es">Marcar como <strong>global</strong> solo en la tipología del módulo de comité (debe haber una sola global).</span><span class="en">Flag as <strong>global</strong> only on the committee module's typology (there must be a single global one).</span></li>
+  </ol>
+  <p><span class="es">El <strong>nombre del módulo se hereda de la tipología</strong> — elegir nombres pensados para mostrarse como pestañas en el portal.</span><span class="en">The <strong>module name is inherited from the typology</strong> — choose names meant to be displayed as portal tabs.</span></p>
+
+  <h3>4.3 <span class="es">Crear la Pauta (Escenario de evaluación)</span><span class="en">Create the Scenario (evaluation template)</span></h3>
+  <p><span class="es">Menú <strong>Evaluación → Escenarios de evaluación</strong> (función 1308):</span><span class="en">Menu <strong>Evaluation → Evaluation scenarios</strong> (function 1308):</span></p>
+  <ol>
+    <li><span class="es"><strong>Nueva pauta</strong>: código y descripción.</span><span class="en"><strong>New scenario</strong>: code and description.</span></li>
+    <li><span class="es">Definir el comportamiento de cierre: pauta simple (un módulo) → dejar los valores por defecto (cierre automático al terminar el último módulo); pauta multi-módulo donde el evaluador debe confirmar el cierre → activar la pestaña "Finalizar" y desactivar el cierre automático.</span><span class="en">Define the closing behavior: simple scenario (one module) → keep the defaults (automatic closing when the last module is finished); multi-module scenario where the evaluator must confirm closure → enable the "Finish" tab and disable automatic closing.</span></li>
+    <li><span class="es"><strong>Agregar módulos</strong>: para cada uno elegir tipología, formulario (combo filtrado a <code>EVAL_MODULE</code> publicados), <strong>peso</strong> y orden.</span><span class="en"><strong>Add modules</strong>: for each one choose typology, form (combo filtered to published <code>EVAL_MODULE</code>), <strong>weight</strong> and order.</span></li>
+    <li><span class="es"><strong>Verificar que los pesos sumen 100</strong> (el sistema no lo controla).</span><span class="en"><strong>Verify the weights add up to 100</strong> (the system does not check it).</span></li>
+    <li><span class="es">Guardar.</span><span class="en">Save.</span></li>
+  </ol>
+
+  <h3>4.4 <span class="es">Vincular la pauta a la Convocatoria</span><span class="en">Link the scenario to the Call</span></h3>
+  <p><span class="es">Ficha de la <strong>Convocatoria → pestaña Escenarios de evaluación</strong>:</span><span class="en"><strong>Call record → Evaluation scenarios tab</strong>:</span></p>
+  <ol>
+    <li><span class="es"><strong>Vincular escenario existente</strong> (selector) o <strong>crear uno nuevo</strong> (abre el formulario de pauta con la convocatoria pre-cargada).</span><span class="en"><strong>Link an existing scenario</strong> (selector) or <strong>create a new one</strong> (opens the scenario form with the call pre-loaded).</span></li>
+    <li><span class="es">Marcar <strong>default</strong> la pauta principal (es la que se propone al crear evaluaciones de los proyectos de esa convocatoria).</span><span class="en">Mark the main scenario as <strong>default</strong> (it is the one proposed when creating evaluations for that call's projects).</span></li>
+    <li><span class="es">Opcionalmente fijar el plazo por defecto del proceso: <strong>días de plazo</strong> o <strong>fecha límite</strong>.</span><span class="en">Optionally set the default process deadline: <strong>days allowed</strong> or <strong>limit date</strong>.</span></li>
+  </ol>
+  <p><span class="es">Una convocatoria puede tener varias pautas (p. ej. una para pares y otra para comité).</span><span class="en">A call can have several scenarios (e.g. one for peers and another for committee).</span></p>
+
+  <h3>4.5 <span class="es">Crear la Evaluación del Proyecto</span><span class="en">Create the Project Evaluation</span></h3>
+  <p><span class="es">Menú <strong>Evaluación → Proyectos Evaluación</strong> (función 826) — o desde el proceso BPM de evaluación si la organización lo usa:</span><span class="en">Menu <strong>Evaluation → Project Evaluations</strong> (function 826) — or from the evaluation BPM process if the organization uses one:</span></p>
+  <ol>
+    <li><span class="es">Buscar/crear la ficha del proyecto en evaluación.</span><span class="en">Find/create the record of the project under evaluation.</span></li>
+    <li><span class="es">En modo edición, elegir la <strong>pauta</strong> (autocompletar — debe estar vinculada a la convocatoria) y la <strong>fecha límite del proceso</strong> (o días).</span><span class="en">In edit mode, choose the <strong>scenario</strong> (autocomplete — it must be linked to the call) and the <strong>process limit date</strong> (or days).</span></li>
+    <li><span class="es">Guardar → queda la Evaluación del Proyecto creada, sin evaluaciones aún (<em>Pendiente de inicio</em>).</span><span class="en">Save → the Project Evaluation is created, with no evaluations yet (<em>Pending start</em>).</span></li>
+  </ol>
+
+  <h3>4.6 <span class="es">Crear evaluaciones y asignar evaluadores</span><span class="en">Create evaluations and assign evaluators</span></h3>
+  <p><span class="es">Dos caminos:</span><span class="en">Two paths:</span></p>
+  <p><strong>A. <span class="es">Desde la ficha de Proyecto Evaluación</span><span class="en">From the Project Evaluation record</span></strong></p>
+  <ol>
+    <li><span class="es">Click en <strong>"Agregar evaluadores/responsables"</strong>.</span><span class="en">Click <strong>"Add evaluators/responsibles"</strong>.</span></li>
+    <li><span class="es">Buscar evaluadores (nombre, apellido, disciplina) y seleccionarlos.</span><span class="en">Search evaluators (first name, last name, discipline) and select them.</span></li>
+    <li><span class="es">Cada evaluador seleccionado genera una evaluación vinculada al proyecto.</span><span class="en">Each selected evaluator generates an evaluation linked to the project.</span></li>
+  </ol>
+  <p><strong>B. <span class="es">Desde Evaluaciones → Nueva (asignación masiva por evaluador)</span><span class="en">From Evaluations → New (bulk assignment per evaluator)</span></strong></p>
+  <ol>
+    <li><span class="es">Seleccionar el <strong>evaluador</strong>.</span><span class="en">Select the <strong>evaluator</strong>.</span></li>
+    <li><span class="es">Seleccionar <strong>uno o varios proyectos</strong>.</span><span class="en">Select <strong>one or several projects</strong>.</span></li>
+    <li><span class="es">Elegir pauta, deadline, plantilla de email (y plantilla de contrato si se requiere aceptación).</span><span class="en">Choose scenario, deadline, email template (and contract template if acceptance is required).</span></li>
+    <li><span class="es">Guardar → se crea una evaluación por proyecto y se envía <strong>un solo email</strong> al evaluador con todos los encargos. Si se marca "pendiente de envío", el email queda diferido.</span><span class="en">Save → one evaluation is created per project and <strong>a single email</strong> is sent to the evaluator with all assignments. If "pending shipping" is checked, the email is deferred.</span></li>
+  </ol>
+  <p class="es">Al crear la evaluación:</p>
+  <p class="en">When the evaluation is created:</p>
+  <ul>
+    <li><span class="es">Estado inicial: <strong>Abierta</strong> (o <em>Pendiente aceptación</em> si requiere contrato).</span><span class="en">Initial status: <strong>Open</strong> (or <em>Pending acceptance</em> if a contract is required).</span></li>
+    <li><span class="es">El email al evaluador incluye el enlace de acceso al portal (autenticación por enlace — el evaluador no necesita usuario/contraseña de P3).</span><span class="en">The email to the evaluator includes the portal access link (link-based authentication — the evaluator does not need a P3 username/password).</span></li>
+    <li><span class="es">Las instancias de formulario <strong>no</strong> se crean todavía: se crean en el <strong>primer acceso</strong> del evaluador (eso además registra la fecha de lectura).</span><span class="en">The form instances are <strong>not</strong> created yet: they are created on the evaluator's <strong>first access</strong> (which also records the read date).</span></li>
+  </ul>
+
+  <h3>4.7 <span class="es">Verificación rápida de la configuración</span><span class="en">Quick configuration check</span></h3>
+  <ul class="chk">
+    <li><span class="es">El formulario de cada módulo está <strong>publicado</strong> y es kind <code>EVAL_MODULE</code>.</span><span class="en">Each module's form is <strong>published</strong> and is kind <code>EVAL_MODULE</code>.</span></li>
+    <li><span class="es">Cada módulo tiene formulario, tipología, peso y orden.</span><span class="en">Each module has form, typology, weight and order.</span></li>
+    <li><span class="es">Los pesos de la pauta suman <strong>100</strong>.</span><span class="en">The scenario's weights add up to <strong>100</strong>.</span></li>
+    <li><span class="es">La pauta está vinculada a la convocatoria (y marcada default si corresponde).</span><span class="en">The scenario is linked to the call (and marked default if applicable).</span></li>
+    <li><span class="es">La plantilla de email de invitación existe y tiene las variables del enlace.</span><span class="en">The invitation email template exists and has the link variables.</span></li>
+    <li><span class="es">Hay un solo módulo con tipología global por proyecto (si se usa comité).</span><span class="en">There is a single module with global typology per project (if a committee is used).</span></li>
+  </ul>
+</section>
+
+<!-- ========== 5. EVALUATOR JOURNEY ========== -->
+<section id="s5">
+  <div class="sec-h"><span class="n">05</span><span class="es">El recorrido del evaluador (Portal)</span><span class="en">The evaluator's journey (Portal)</span></div>
+  <div class="journey">
+    <div class="jstep"><div class="jn"></div><div class="jt"><div class="jt-h"><span class="es">Invitación</span><span class="en">Invitation</span></div><p><span class="es">Recibe el email con el enlace de acceso.</span><span class="en">Receives the email with the access link.</span></p></div></div>
+    <div class="jstep"><div class="jn"></div><div class="jt"><div class="jt-h"><span class="es">Mis evaluaciones</span><span class="en">My evaluations</span></div><p><span class="es">Ve la lista de sus encargos con proyecto, estado y plazo.</span><span class="en">Sees the list of assignments with project, status and deadline.</span></p></div></div>
+    <div class="jstep"><div class="jn"></div><div class="jt"><div class="jt-h"><span class="es">Abrir evaluación</span><span class="en">Open the evaluation</span></div><p><span class="es">El primer acceso registra fecha de lectura y crea las instancias de formulario de cada módulo. Si la evaluación requiere contrato, primero debe aceptarlo.</span><span class="en">The first access records the read date and creates each module's form instances. If the evaluation requires a contract, it must be accepted first.</span></p></div></div>
+    <div class="jstep"><div class="jn"></div><div class="jt"><div class="jt-h"><span class="es">Completar módulos</span><span class="en">Complete the modules</span></div><p><span class="es">Cada módulo es una pestaña con su formulario embebido (se puede guardar parcialmente; el progreso se ve en P3). Puede finalizar módulo por módulo.</span><span class="en">Each module is a tab with its embedded form (partial saving allowed; progress is visible in P3). Modules can be finished one by one.</span></p></div></div>
+    <div class="jstep"><div class="jn"></div><div class="jt"><div class="jt-h"><span class="es">Finalizar</span><span class="en">Finish</span></div><p><span class="es">Según la pauta, al terminar el último módulo la evaluación se cierra sola, o el evaluador confirma en la pestaña "Finalizar".</span><span class="en">Depending on the scenario, the evaluation closes automatically when the last module is finished, or the evaluator confirms in the "Finish" tab.</span></p></div></div>
+    <div class="jstep"><div class="jn"></div><div class="jt"><div class="jt-h"><span class="es">Post-finalización</span><span class="en">After finishing</span></div><p><span class="es">Conserva acceso de <strong>solo lectura</strong> a todo lo que cargó. Solo un administrativo puede reabrir desde P3.</span><span class="en">Keeps <strong>read-only</strong> access to everything entered. Only an administrator can reopen from P3.</span></p></div></div>
+  </div>
+  <p><span class="es">Si la evaluación incluye el <strong>módulo global</strong> (comité), el evaluador ve además un resumen de las demás evaluaciones del proyecto.</span><span class="en">If the evaluation includes the <strong>global module</strong> (committee), the evaluator also sees a summary of the project's other evaluations.</span></p>
+</section>
+
+<!-- ========== 6. DAILY OPERATION ========== -->
+<section id="s6">
+  <div class="sec-h"><span class="n">06</span><span class="es">Operación diaria del administrativo</span><span class="en">Administrator's daily operation</span></div>
+  <table>
+    <thead><tr><th><span class="es">Tarea</span><span class="en">Task</span></th><th><span class="es">Dónde</span><span class="en">Where</span></th><th><span class="es">Notas</span><span class="en">Notes</span></th></tr></thead>
+    <tbody>
+      <tr><td><span class="es">Seguimiento de evaluaciones</span><span class="en">Evaluation tracking</span></td><td><span class="es">Menú Evaluación → Evaluaciones (filtros por proyecto, evaluador, estado, plazo; export a Excel)</span><span class="en">Menu Evaluation → Evaluations (filters by project, evaluator, status, deadline; Excel export)</span></td><td><span class="es">Estados con color.</span><span class="en">Color-coded statuses.</span></td></tr>
+      <tr><td><span class="es">Seguimiento por proyecto</span><span class="en">Per-project tracking</span></td><td><span class="es">Ficha Proyecto Evaluación → tabla de evaluaciones</span><span class="en">Project Evaluation record → evaluations table</span></td><td><span class="es">Puntaje, módulos, acciones por fila.</span><span class="en">Score, modules, per-row actions.</span></td></tr>
+      <tr><td><span class="es">Cambiar estado de una evaluación</span><span class="en">Change an evaluation's status</span></td><td><span class="es">Tabla de evaluaciones → menú ⋮ → "Cambiar estado", o ficha de evaluación</span><span class="en">Evaluations table → ⋮ menu → "Change status", or evaluation record</span></td><td><span class="es">El paso abierta↔cerrada bloquea/desbloquea los formularios automáticamente.</span><span class="en">The open↔closed transition locks/unlocks the forms automatically.</span></td></tr>
+      <tr><td><span class="es">Forzar cierre</span><span class="en">Force closure</span></td><td><span class="es">Ficha de evaluación → Acciones → <strong>Finalizar</strong> (función 1032)</span><span class="en">Evaluation record → Actions → <strong>Finish</strong> (function 1032)</span></td><td><span class="es">Ver fichas de features del módulo.</span><span class="en">See the module feature sheets.</span></td></tr>
+      <tr><td><span class="es">Reabrir</span><span class="en">Reopen</span></td><td><span class="es">Ficha de evaluación → Acciones → <strong>Reabrir</strong></span><span class="en">Evaluation record → Actions → <strong>Reopen</strong></span></td><td><span class="warn-i"><span class="es">Permiso aún placeholder (99999) — definir antes de usar en producción (ITS 10108).</span><span class="en">Permission still a placeholder (99999) — define before production use (ITS 10108).</span></span></td></tr>
+      <tr><td><span class="es">Cargar puntaje global / comité</span><span class="en">Load global / committee score</span></td><td><span class="es">Ficha Proyecto Evaluación</span><span class="en">Project Evaluation record</span></td><td><span class="es">Campo independiente del promedio.</span><span class="en">Field independent from the average.</span></td></tr>
+      <tr><td><span class="es">Permisos de lectura</span><span class="en">Read permissions</span></td><td><span class="es">Ficha Proyecto Evaluación → pestaña Permisos de Lectura (función 1484)</span><span class="en">Project Evaluation record → Read Permissions tab (function 1484)</span></td><td><span class="es">Da acceso de solo lectura a terceros.</span><span class="en">Grants read-only access to third parties.</span></td></tr>
+      <tr><td><span class="es">Valorar el trabajo del evaluador</span><span class="en">Rate the evaluator's work</span></td><td><span class="es">Ficha de evaluación → resultado (rating 1..5 + comentario)</span><span class="en">Evaluation record → result (1..5 rating + comment)</span></td><td><span class="es">Histórico de calidad del evaluador.</span><span class="en">Evaluator quality history.</span></td></tr>
+      <tr><td><span class="es">Reenviar invitaciones</span><span class="en">Resend invitations</span></td><td><span class="es">Búsqueda de evaluadores / ficha → "Enviar emails"</span><span class="en">Evaluator search / record → "Send emails"</span></td><td><span class="es">Selección múltiple + plantilla.</span><span class="en">Multiple selection + template.</span></td></tr>
+      <tr><td><span class="es">Cancelar por incumplimiento</span><span class="en">Cancel for non-compliance</span></td><td><span class="es">Cambio de estado a "Cancelada por incumplimiento"</span><span class="en">Status change to "Cancelled for non-compliance"</span></td><td><span class="es">No hay automatismo por vencimiento de deadline (manual).</span><span class="en">No automation on deadline expiry (manual).</span></td></tr>
+    </tbody>
+  </table>
+</section>
+<!-- ========== 7. SCORING ========== -->
+<section id="s7">
+  <div class="sec-h"><span class="n">07</span><span class="es">Cómo se calculan los puntajes</span><span class="en">How scores are computed</span></div>
+
+  <div class="pipe">
+    <div class="stage">
+      <div class="st-h"><span class="es">Formulario</span><span class="en">Form</span></div>
+      <div class="st-v"><span class="es">Campo <code>score</code> del formulario — lo deja el form al finalizar el módulo.</span><span class="en"><code>score</code> field of the form — written by the form when the module is finished.</span></div>
+    </div>
+    <div class="arr">↓</div>
+    <div class="stage">
+      <div class="st-h"><span class="es">Puntaje del módulo</span><span class="en">Module score</span></div>
+      <div class="st-v"><span class="es">Puntaje registrado para el módulo dentro de la evaluación.</span><span class="en">Score recorded for the module within the evaluation.</span></div>
+    </div>
+    <div class="arr">↓ <span class="op"><span class="es">× peso del módulo / 100</span><span class="en">× module weight / 100</span></span></div>
+    <div class="stage">
+      <div class="st-h"><span class="es">Puntaje de la evaluación</span><span class="en">Evaluation score</span></div>
+      <div class="st-v"><span class="es">Σ de los puntajes ponderados de sus módulos <em>(se calcula al cerrarse la evaluación)</em>.</span><span class="en">Σ of the weighted scores of its modules <em>(computed when the evaluation closes)</em>.</span></div>
+    </div>
+    <div class="arr">↓</div>
+    <div class="stage">
+      <div class="st-h"><span class="es">Promedio del proyecto</span><span class="en">Project average</span></div>
+      <div class="st-v"><span class="es">Media de los puntajes de las evaluaciones (solo las que tienen puntaje, en estados Abierta / Terminada / Reabierta).</span><span class="en">Mean of the evaluation scores (only those with a score, in Open / Finished / Reopened statuses).</span></div>
+    </div>
+    <div class="aside">
+      <div class="st-h"><span class="es">Aparte e independiente</span><span class="en">Separate and independent</span></div>
+      <div class="st-v"><span class="es">Puntuación del Módulo Global (comité), cargada una sola vez por proyecto.</span><span class="en">The Global Module (committee) score, loaded once per project.</span></div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-h"><span class="es">Ejemplo</span><span class="en">Example</span></div>
+    <p><span class="es">Pauta con módulo Técnico (peso 60) y Económico (peso 40). El evaluador puntúa 80 y 90:</span><span class="en">Scenario with a Technical module (weight 60) and an Economic module (weight 40). The evaluator scores 80 and 90:</span></p>
+    <p class="formula">score = 80 × 0,60 + 90 × 0,40 = 84</p>
+    <p><span class="es">Si el proyecto tiene dos evaluaciones con 84 y 76, el promedio es 80. El comité puede además fijar <strong>78</strong> como puntaje global, es decir, como nota final.</span><span class="en">If the project has two evaluations scoring 84 and 76, the average is 80. The committee can additionally set <strong>78</strong> as the global score — the final grade.</span></p>
+  </div>
+
+  <h3><span class="es">Reglas y cuidados</span><span class="en">Rules and caveats</span></h3>
+  <ul>
+    <li><span class="es">Si un módulo no tiene peso, el sistema usa 100 (puntaje sin ponderar).</span><span class="en">If a module has no weight, the system uses 100 (unweighted score).</span></li>
+    <li><span class="warn-i"><span class="es">Pesos que no suman 100 ⇒ puntajes de evaluación fuera de la escala esperada, <strong>sin aviso</strong>.</span><span class="en">Weights not adding up to 100 ⇒ evaluation scores outside the expected scale, <strong>with no warning</strong>.</span></span></li>
+    <li><span class="es">La escala del <code>score</code> la define el formulario (no hay validación de rango en P3): usar la misma escala en todos los módulos de la pauta.</span><span class="en">The <code>score</code> scale is defined by the form (no range validation in P3): use the same scale across all the scenario's modules.</span></li>
+    <li><span class="es">Los módulos sin puntaje aportan 0 (no se excluyen del cálculo).</span><span class="en">Modules with no score contribute 0 (they are not excluded from the calculation).</span></li>
+  </ul>
+</section>
+
+<!-- ========== 8. PERMISSIONS ========== -->
+<section id="s8">
+  <div class="sec-h"><span class="n">08</span><span class="es">Permisos (funciones de seguridad)</span><span class="en">Permissions (security functions)</span></div>
+  <table>
+    <thead><tr><th><span class="es">Función</span><span class="en">Function</span></th><th><span class="es">Qué habilita</span><span class="en">What it enables</span></th></tr></thead>
+    <tbody>
+      <tr><td>735</td><td><span class="es">Grupo de menú "Evaluación"</span><span class="en">"Evaluation" menu group</span></td></tr>
+      <tr><td>824</td><td><span class="es">Listado/búsqueda de Evaluaciones</span><span class="en">Evaluations list/search</span></td></tr>
+      <tr><td>825</td><td><span class="es">Listado/administración de Evaluadores</span><span class="en">Evaluators list/administration</span></td></tr>
+      <tr><td>826</td><td><span class="es">Listado/búsqueda de Proyectos Evaluación</span><span class="en">Project Evaluations list/search</span></td></tr>
+      <tr><td>1308</td><td><span class="es">CRUD de Escenarios de evaluación (pautas)</span><span class="en">Evaluation scenarios CRUD</span></td></tr>
+      <tr><td>1309</td><td><span class="es">CRUD de Tipologías de módulo</span><span class="en">Module typologies CRUD</span></td></tr>
+      <tr><td>515</td><td><span class="es">Edición de la ficha Proyecto Evaluación</span><span class="en">Project Evaluation record editing</span></td></tr>
+      <tr><td>1032</td><td><span class="es">Acción "Finalizar" (cierre forzado) sobre una evaluación</span><span class="en">"Finish" action (forced closure) on an evaluation</span></td></tr>
+      <tr><td><strong class="warn-i">99999</strong></td><td><span class="warn-i"><span class="es">Acción "Reabrir" — <strong>placeholder pendiente de definir</strong> (ITS 10108)</span><span class="en">"Reopen" action — <strong>placeholder pending definition</strong> (ITS 10108)</span></span></td></tr>
+      <tr><td>1449</td><td><span class="es">Inyección/carga batch de evaluaciones</span><span class="en">Batch injection/load of evaluations</span></td></tr>
+      <tr><td>1484</td><td><span class="es">Pestaña "Permisos de Lectura" de Proyecto Evaluación</span><span class="en">Project Evaluation "Read Permissions" tab</span></td></tr>
+    </tbody>
+  </table>
+  <p><span class="es">Las funciones se asignan a perfiles desde Seguridad → Perfiles; no requieren desarrollo.</span><span class="en">Functions are assigned to profiles from Security → Profiles; no development required.</span></p>
+</section>
+
+<!-- ========== 9. FAQ ========== -->
+<section id="s9">
+  <div class="sec-h"><span class="n">09</span><span class="es">Preguntas frecuentes / Troubleshooting</span><span class="en">FAQ / Troubleshooting</span></div>
+
+  <h3><span class="es">El combo de formularios del módulo está vacío.</span><span class="en">The module's form combo is empty.</span></h3>
+  <p><span class="es">El formulario no está publicado, no es kind <code>EVAL_MODULE</code>, o el form server no responde.</span><span class="en">The form is not published, is not kind <code>EVAL_MODULE</code>, or the form server is not responding.</span></p>
+
+  <h3><span class="es">El evaluador no recibió el email.</span><span class="en">The evaluator did not receive the email.</span></h3>
+  <p><span class="es">Revisar si la evaluación quedó marcada como <strong>"pendiente de envío"</strong> y el email de evaluaciones del evaluador (puede usar un email específico distinto al principal).</span><span class="en">Check whether the evaluation was left flagged as <strong>"pending shipping"</strong> and the evaluator's evaluations email (a specific email different from the main one may be in use).</span></p>
+
+  <h3><span class="es">El evaluador terminó pero la evaluación sigue abierta.</span><span class="en">The evaluator finished but the evaluation is still open.</span></h3>
+  <p><span class="es">La pauta tiene desactivado el cierre automático al terminar el último módulo y el evaluador no pasó por la pestaña Finalizar; o algún módulo quedó sin finalizar. Verificar fechas de finalización por módulo en la ficha de evaluación.</span><span class="en">The scenario has automatic closing on the last module disabled and the evaluator did not go through the Finish tab; or some module was left unfinished. Check per-module finish dates in the evaluation record.</span></p>
+
+  <h3><span class="es">La evaluación figura Terminada pero el evaluador aún puede editar.</span><span class="en">The evaluation shows Finished but the evaluator can still edit.</span></h3>
+  <p><span class="es">El bloqueo de la instancia de Forms falló (servicio externo). Reintentar el cambio de estado o revisar logs (desincronización P3/Forms — ver guía técnica).</span><span class="en">The Forms instance lock failed (external service). Retry the status change or check the logs (P3/Forms desynchronization — see the technical guide).</span></p>
+
+  <h3><span class="es">El puntaje de la evaluación no es el esperado.</span><span class="en">The evaluation score is not the expected one.</span></h3>
+  <p><span class="es">Verificar que los pesos de la pauta sumen 100 y que todos los módulos usen la misma escala de puntaje.</span><span class="en">Verify the scenario's weights add up to 100 and that all modules use the same score scale.</span></p>
+
+  <h3><span class="es">No aparece el botón Finalizar/Reabrir.</span><span class="en">The Finish/Reopen button does not appear.</span></h3>
+  <p><span class="es">Función de seguridad no asignada al perfil (1032 / pendiente para Reabrir), o la evaluación no está en el estado requerido (Finalizar exige abierta; Reabrir exige cerrada).</span><span class="en">Security function not assigned to the profile (1032 / pending for Reopen), or the evaluation is not in the required status (Finish requires open; Reopen requires closed).</span></p>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="ftr">
+  <span class="es">Poddera P3 · Módulo de Evaluación — Guía Funcional. Documentos complementarios: guía técnica del módulo (arquitectura y modelo) y fichas de features (cierre forzado, reapertura).</span>
+  <span class="en">Poddera P3 · Evaluation Module — Functional Guide. Companion documents: module technical guide (architecture and model) and feature sheets (forced closure, reopening).</span>
+
+  <div class="ftr-brand">
+    <svg class="brand-logo ftr-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 188 31" aria-label="Poddera" role="img">
+      <path fill="#1E1E1E" d="M184.2,30.9c-1.7,0-3.2-1.6-3.2-3.6c0-1.9,1.5-3.6,3.2-3.6c1.7,0,3.2,1.6,3.2,3.6  C187.4,29.3,186,30.9,184.2,30.9z"></path>
+      <path fill="#1E1E1E" d="M17.7,18.9H5.1v11.6H0v-30h17.6c5.1,0,9.3,3.3,9.3,9.2C26.8,15.2,22.5,18.9,17.7,18.9z M17.3,5.2H5.1v9h12.3  c2.4,0,4.3-1.7,4.3-4.5C21.7,6.8,19.8,5.2,17.3,5.2z"></path>
+      <path fill="#1E1E1E" d="M115.4,20.6c0.4,4.1,3.6,5.7,7,5.7c2.8,0,5.5-0.3,6.8-3.7l4.8,1.3c-2,5.8-6.4,7-11.6,7  c-7.4,0-12.3-3.8-12.3-11.9c0-8,5.5-12.2,12.3-12.2c6.9,0,11.9,4.1,11.9,12.2v1.6L115.4,20.6L115.4,20.6z M122.3,11.5  c-3,0-6.2,1.4-6.8,5h13.2C128.2,12.8,125.3,11.5,122.3,11.5z"></path>
+      <path fill="#1E1E1E" d="M151.5,11.9c-0.7-0.3-1.4-0.4-2.2-0.4c-3.9,0-6.5,3-6.5,7.2v11.7h-5.1V7.2h5.1v4c1-2.2,3.9-4.5,6.9-4.5  c1,0,2,0.2,3,0.5L151.5,11.9z"></path>
+      <path fill="#1E1E1E" d="M28.6,19.1v-0.6c0-2.6,0.6-4.8,1.6-6.6c2.1-3.6,5.4-5,10.2-5c2.4,0,4.5,0.4,6.3,1.4c3.7,1.9,5.5,5.6,5.5,10.3  v0.6c0,2.6-0.5,4.7-1.5,6.4c-2.1,3.5-5.3,5.4-10.3,5.4C32.6,30.9,28.6,26.7,28.6,19.1z M47.1,19v-0.5c0-4.8-2.6-7.1-6.6-7.1  c-4,0-6.6,2.2-6.6,7.1V19c0,4.6,2.4,7.2,6.6,7.2C44.6,26.2,47.1,23.6,47.1,19z"></path>
+      <path fill="#1E1E1E" d="M65.4,30.9c-6.5,0-10.4-4.2-10.4-12.2v-0.6c0-2.6,0.5-4.8,1.4-6.5c1.9-3.5,4.8-4.9,9.1-4.9c4.2,0,7,1.3,8.5,4.1  V0h5.1v30.4h-4.3l-0.6-4.9C72.9,28.7,70,30.9,65.4,30.9z M74.2,18.7v-0.4c0-4.6-2.6-7.1-6.8-7.1c-4.4,0-6.8,2.3-6.8,7v0.4  c0,5,2.8,7.6,6.6,7.6C71.6,26.3,74.2,23.4,74.2,18.7z"></path>
+      <path fill="#1E1E1E" d="M92.8,30.9c-6.5,0-10.4-4.2-10.4-12.2v-0.6c0-2.6,0.5-4.8,1.4-6.5c1.9-3.5,4.8-5.3,9.1-5.3c4.2,0,7,1.7,8.5,4.6  V0h5.1v30.4h-4.3l-0.6-4.9C100.3,28.7,97.4,30.9,92.8,30.9z M101.6,18.7v-0.4c0-4.6-2.6-7.5-6.8-7.5c-4.4,0-6.8,2.7-6.8,7.5v0.4  c0,5,2.8,7.6,6.6,7.6C99,26.3,101.6,23.4,101.6,18.7z"></path>
+      <path fill="#1E1E1E" d="M165.9,6.8c-6.6,0-10.7,2.9-11.7,7.4l5.2,1.3c0,0,0.6-4.1,6.8-4.1c4,0,5.4,1.1,5.4,2.6c0,1.9-1.8,2.5-6.4,3  c-3.2,0.4-5.1,0.8-6.6,1.3c-0.7,0.2-1.5,0.5-2.2,1c-2.1,1.2-3.3,3.1-3.3,5.7c0,3.8,2.7,6.1,8.2,6.1c5.3,0,8.8-2.2,10.5-5.2l0.6,4.6  h4.7V16.2C177.1,12.9,176.5,6.8,165.9,6.8z M171.6,20c0,2.2-2,6.4-8.2,6.4c-2.6,0-4-0.3-4-2.3c0-1,0.5-1.8,1.5-2.4  c1.2-0.7,2.5-1,5.6-1.5c2.3-0.3,4.3-0.8,5.2-1.5V20z"></path>
+    </svg>
+    <span class="es">© 2026 Poddera Iberia S.L. — Todos los derechos reservados. Documento propiedad de Poddera.</span>
+    <span class="en">© 2026 Poddera Iberia S.L. — All rights reserved. This document is the property of Poddera.</span>
+  </div>
+</footer>
+
+</div>
+<script>
+function setLang(l){
+  document.body.classList.remove('lang-es','lang-en');
+  document.body.classList.add('lang-'+l);
+  document.documentElement.lang = l;
+  document.getElementById('btnEs').classList.toggle('on', l==='es');
+  document.getElementById('btnEn').classList.toggle('on', l==='en');
+}
+</script>
+</body>
+</html>
